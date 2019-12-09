@@ -1,6 +1,6 @@
 <?php
     function connectDB() {
-        $db = mysqli_connect("informatica.ieszaidinvergeles.org:8058", "root", "root", "restaurante");
+        $db = mysqli_connect("localhost", "root", "", "restaurante");
         if (!$db) {
             echo "Error: No se pudo conectar a MySQL.". PHP_EOL;
             echo "Error de depuración: ". mysqli_connect_errno() . PHP_EOL;

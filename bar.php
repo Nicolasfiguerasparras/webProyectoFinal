@@ -53,7 +53,7 @@
                             <div class="col-12">
                                 <form action="bar.php" method="POST" enctype="multipart/form-data">
                                     <div class="form-group">
-                                        <input type="text" class="form-control" id="search" aria-describedby="orderSearch" placeholder="Buscar comanda...">
+                                        <input type="text" class="form-control" id="search" name="search" aria-describedby="orderSearch" placeholder="Buscar comanda...">
                                     </div>
                                     <input type="submit" class="btn btn-primary" value="Buscar" name="send">
                                 </form>
@@ -61,78 +61,182 @@
                         </div>
                     <!-- /Search input -->
 
+                    <br><br>
+
+                    <!-- Search result -->
+                        <?php
+                            if(isset($_POST['send'])){
+
+                                $searchQuery = "SELECT * FROM comandas WHERE idprodocto = '$_POST[search]'";
+                                $search = mysqli_query($db, $searchQuery);
+
+                                echo "<div class='row'>";
+                                    if($search != 0 && $row = mysqli_fetch_array($search)){
+                                        echo "<table class='table table-dark'>";
+
+                                            echo "<thead>";
+                                                echo "<tr>";
+                                                    echo "<th scope='col'></th>";
+                                                    echo "<th scope='col'>Producto</th>";
+                                                    echo "<th scope='col'>Unidades</th>";
+                                                    echo "<th scope='col'>Entregado</th>";
+                                                    echo "<th scope='col'></th>";
+                                                echo "</tr>";
+                                            echo "</thead>";
+
+                                            echo "<tbody>";
+
+                                            do{
+                                                echo "<tr>";
+                                                    echo "<td></td>";
+                                                    echo "<td>".$row["idproducto"]."</td>";
+                                                    echo "<td>".$row["unidades"]."</td>";
+                                                    echo "<td>".$row["entregada"]."</td>";
+                                                echo "</tr>";
+                                            }while($row = mysqli_fetch_array($search));
+
+                                            echo "</tbody>";
+
+                                        echo "</table>";
+                                    }else{
+                                        echo "<table class='table table-dark'>";
+
+                                            echo "<thead>";
+                                                echo "<tr>";
+                                                    echo "<th scope='col'></th>";
+                                                    echo "<th scope='col'>Producto</th>";
+                                                    echo "<th scope='col'>Unidades</th>";
+                                                    echo "<th scope='col'>Entregado</th>";
+                                                    echo "<th scope='col'></th>";
+                                                echo "</tr>";
+                                            echo "</thead>";
+
+                                            echo "<tbody>";
+                                                echo "<tr>";
+                                                    echo "<td>No se ha encontrado ningún registro</td>";
+                                                echo "</tr>";
+                                            echo "</tbody>";
+
+                                        echo "</table>";
+                                    }
+                                echo "</div>";
+                            }
+                        ?>
+                    <!-- /Search result -->
+
                     <div class="row">
+
                         <!-- Unnatended orders -->
                             <div class="col-6">
                                 <h2 style="text-align: center;">Pedidos sin atender</h2>
 
-                                <table class="table table-dark">
-                                    <thead>
-                                        <tr>
-                                            <th scope="col"></th>
-                                            <th scope="col">Producto</th>
-                                            <th scope="col">Unidades</th>
-                                            <th scope="col">Entregado</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <th scope="row">1</th>
-                                            <td>Mark</td>
-                                            <td>Otto</td>
-                                            <td>@mdo</td>
-                                        </tr>
-                                        <tr>
-                                            <th scope="row">2</th>
-                                            <td>Jacob</td>
-                                            <td>Thornton</td>
-                                            <td>@fat</td>
-                                        </tr>
-                                        <tr>
-                                            <th scope="row">3</th>
-                                            <td>Larry</td>
-                                            <td>the Bird</td>
-                                            <td>@twitter</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                                <?php
+                                    if($row = mysqli_fetch_array($unnatendedOrders)){
+                                        echo "<table class='table table-dark'>";
+
+                                            echo "<thead>";
+                                                echo "<tr>";
+                                                    echo "<th scope='col'></th>";
+                                                    echo "<th scope='col'>Producto</th>";
+                                                    echo "<th scope='col'>Unidades</th>";
+                                                    echo "<th scope='col'>Entregado</th>";
+                                                    echo "<th scope='col'></th>";
+                                                echo "</tr>";
+                                            echo "</thead>";
+
+                                            echo "<tbody>";
+
+                                            do{
+                                                echo "<tr>";
+                                                    echo "<td></td>";
+                                                    echo "<td>".$row["idproducto"]."</td>";
+                                                    echo "<td>".$row["unidades"]."</td>";
+                                                    echo "<td>".$row["entregada"]."</td>";
+                                                echo "</tr>";
+                                            }while($row = mysqli_fetch_array($unnatendedOrders));
+
+                                            echo "</tbody>";
+
+                                        echo "</table>";
+                                    }else{
+                                        echo "<table class='table table-dark'>";
+
+                                            echo "<thead>";
+                                                echo "<tr>";
+                                                    echo "<th scope='col'></th>";
+                                                    echo "<th scope='col'>Producto</th>";
+                                                    echo "<th scope='col'>Unidades</th>";
+                                                    echo "<th scope='col'>Entregado</th>";
+                                                    echo "<th scope='col'></th>";
+                                                echo "</tr>";
+                                            echo "</thead>";
+
+                                            echo "<tbody>";
+                                                echo "<tr>";
+                                                    echo "<td>No se ha encontrado ningún registro</td>";
+                                                echo "</tr>";
+                                            echo "</tbody>";
+
+                                        echo "</table>";
+                                    }
+                                ?>
+
                             </div>
                         <!-- /Unnatended orders -->
 
                         <!-- Done orders -->
                             <div class="col-6">
                                 <h2 style="text-align: center;">Pedidos atendidos</h2>
-                                
-                                <table class="table table-dark">
-                                    <thead>
-                                        <tr>
-                                            <th scope="col"></th>
-                                            <th scope="col">Producto</th>
-                                            <th scope="col">Unidades</th>
-                                            <th scope="col">Entregado</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <th scope="row">1</th>
-                                            <td>Mark</td>
-                                            <td>Otto</td>
-                                            <td>@mdo</td>
-                                        </tr>
-                                        <tr>
-                                            <th scope="row">2</th>
-                                            <td>Jacob</td>
-                                            <td>Thornton</td>
-                                            <td>@fat</td>
-                                        </tr>
-                                        <tr>
-                                            <th scope="row">3</th>
-                                            <td>Larry</td>
-                                            <td>the Bird</td>
-                                            <td>@twitter</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+
+                                <?php
+                                    if($row = mysqli_fetch_array($doneOrders)){
+                                        echo "<table class='table table-dark'>";
+
+                                            echo "<thead>";
+                                                echo "<tr>";
+                                                    echo "<th scope='col'></th>";
+                                                    echo "<th scope='col'>Producto</th>";
+                                                    echo "<th scope='col'>Unidades</th>";
+                                                    echo "<th scope='col'>Entregado</th>";
+                                                    echo "<th scope='col'></th>";
+                                                echo "</tr>";
+                                            echo "</thead>";
+
+                                            echo "<tbody>";
+
+                                            do{
+                                                echo "<tr>";
+                                                    echo "<td></td>";
+                                                    echo "<td>".$row["idproducto"]."</td>";
+                                                    echo "<td>".$row["unidades"]."</td>";
+                                                    echo "<td>".$row["entregada"]."</td>";
+                                                echo "</tr>";
+                                            }while($row = mysqli_fetch_array($doneOrders));
+
+                                            echo "</tbody>";
+
+                                        echo "</table>";
+                                    }else{
+                                        echo "<table class='table table-dark'>";
+
+                                            echo "<thead>";
+                                                echo "<tr>";
+                                                    echo "<th scope='col'></th>";
+                                                    echo "<th scope='col'>Producto</th>";
+                                                    echo "<th scope='col'>Unidades</th>";
+                                                    echo "<th scope='col'>Entregado</th>";
+                                                    echo "<th scope='col'></th>";
+                                                echo "</tr>";
+                                            echo "</thead>";
+
+                                            echo "<tbody>";
+                                                echo "No se ha encontrado ningún registro";
+                                            echo "</tbody>";
+
+                                        echo "</table>";
+                                    }
+                                ?>
+
                             </div>
                         <!-- /Done orders -->
 
@@ -152,61 +256,3 @@
         <!-- /Bootstrap JS -->
     </body>
 </html>
-
-
-
-$listQuery = mysqli_query($db, "SELECT * FROM clients");
-
-                                    if($row = mysqli_fetch_array($listQuery)){
-                                        echo "<table class='table'>";
-
-                                            echo "<thead>";
-                                                echo "<tr>";
-                                                    echo "<th scope='col'>Name</th>";
-                                                    echo "<th scope='col'>Surname</th>";
-                                                    echo "<th scope='col'>Birth Date</th>";
-                                                    echo "<th scope='col'>Phone</th>";
-                                                    echo "<th scope='col'>Email</th>";
-                                                    echo "<th scope='col'>Username</th>";
-                                                    echo "<th scope='col'>Password</th>";
-                                                    echo "<th scope='col'>Cases</th>";
-                                                    echo "<th scope='col'>Bill</th>";
-                                                echo "</tr>";
-                                            echo "</thead>";
-
-                                            do{
-                                                echo "<tr>";
-                                                    $listID=$row['client_ID'];
-                                                    echo "<td>".$row["name"]."</td>";
-                                                    echo "<td>".$row["surname"]."</td>";
-                                                    $bDateFormatted = date("l jS F ", strtotime($row["birth_date"]));   
-                                                    echo "<td>".$bDateFormatted."</td>";
-                                                    echo "<td>".$row["phone"]."</td>";
-                                                    echo "<td>".$row["email"]."</td>";
-                                                    echo "<td>".$row["username"]."</td>";
-                                                    echo "<td>".$row["password"]."</td>";
-                                                    $cases = mysqli_query($db, "SELECT * FROM cases WHERE client_ID = '$row[client_ID]'");
-                                                    $num = mysqli_num_rows($cases);
-                                                    if($row_cases = mysqli_fetch_array($cases)){
-                                                        echo "<td>";
-                                                            do{
-                                                                echo $row_cases['title'];
-                                                                $num--;
-                                                                if(!$num == 0){
-                                                                    echo ", ";
-                                                                }
-                                                            }while($row_cases = mysqli_fetch_array($cases));
-                                                        echo "</td>";
-                                                    }else{
-                                                        echo "<td>No record</td>";
-                                                    }
-                                                    echo "<td>".$row["bill"]."$</td>";
-                                                    echo "<td style='text-align: center'><a href='addCase.php?client=$listID'><i class='fa fa-plus' aria-hidden='true'></i></a></td>";
-                                                    echo "<td style='text-align: center'><a href='payment.php?client=$listID'><i class='fas fa-dollar-sign' style='font-size:20px; color:black'></i></a></td>";
-                                                    echo "<td style='text-align: center'><a href='modify.php?client=$listID'><i class='fa fa-edit' style='font-size:20px;color:green'></i></a></td>";
-                                                    echo "<td style='text-align: center'><a class='delete_button' href='delete.php?client=$listID'><i class='fa fa-trash' style='font-size:20px;color:red'></i></a></td>";
-                                                echo "</tr>";
-                                            }while($row = mysqli_fetch_array($listQuery));
-                                    }else{
-                                        echo "There is no record";
-                                    }
