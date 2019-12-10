@@ -13,92 +13,205 @@
     </head>
     <body>
 
+        <!-- Set up connection with DB -->
+            <?php
+                include('connectDB.php');
+                $db = connectDb();
+            ?>
+        <!-- /Set up connection with DB -->
+
+        <!-- Data extract -->
+            <?php
+                // ---------- Unnatended orders ---------- //
+                    $unnatendedOrdersQuery = "SELECT * FROM comanda WHERE entregada = 0";
+                    $unnatendedOrders = mysqli_query($db, $unnatendedOrdersQuery);
+                // ---------- Unnatended orders ---------- //
+
+                // ---------- Done orders ---------- //
+                    $doneOrdersQuery = "SELECT * FROM comanda WHERE entregada = 1";
+                    $doneOrders = mysqli_query($db, $doneOrdersQuery);
+                // ---------- Done orders ---------- //
+            ?>
+        <!-- /Data extract -->
+
         <div class="container">
 
             <!-- Header -->
-                <div class="col-12" style="text-align:center">
-                    <h1>Pedidos cocina</h1>
+                <div class="row">
+                    <div class="col-12" style="text-align:center">
+                        <h1>Pedidos cocina</h1>
+                    </div>
                 </div>
             <!-- /Header -->
 
             <br><br>
 
             <!-- Main content -->
-                <div class="row">
 
-                    <!-- Unnatended orders -->
-                    <div class="col-6">
-                            <h2 style="text-align: center;">Pedidos sin atender</h2>
-
-                            <table class="table table-dark">
-                                <thead>
-                                    <tr>
-                                        <th scope="col"></th>
-                                        <th scope="col">Producto</th>
-                                        <th scope="col">Unidades</th>
-                                        <th scope="col">Entregado</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <th scope="row">1</th>
-                                        <td>Mark</td>
-                                        <td>Otto</td>
-                                        <td>@mdo</td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">2</th>
-                                        <td>Jacob</td>
-                                        <td>Thornton</td>
-                                        <td>@fat</td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">3</th>
-                                        <td>Larry</td>
-                                        <td>the Bird</td>
-                                        <td>@twitter</td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                    <!-- Search input -->
+                        <div class="row">
+                            <div class="col-12">
+                                <form action="bar.php" method="POST" enctype="multipart/form-data">
+                                    <div class="form-group">
+                                        <input type="text" class="form-control" id="search" name="search" aria-describedby="orderSearch" placeholder="Buscar comanda...">
+                                    </div>
+                                    <input type="submit" class="btn btn-primary" value="Buscar" name="send">
+                                </form>
+                            </div>
                         </div>
-                    <!-- /Unnatended orders -->
+                    <!-- /Search input -->
 
-                    <!-- Done orders -->
-                        <div class="col-6">
-                            <h2 style="text-align: center;">Pedidos atendidos</h2>
-                            
-                            <table class="table table-dark">
-                                <thead>
-                                    <tr>
-                                        <th scope="col"></th>
-                                        <th scope="col">Producto</th>
-                                        <th scope="col">Unidades</th>
-                                        <th scope="col">Entregado</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <th scope="row">1</th>
-                                        <td>Mark</td>
-                                        <td>Otto</td>
-                                        <td>@mdo</td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">2</th>
-                                        <td>Jacob</td>
-                                        <td>Thornton</td>
-                                        <td>@fat</td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">3</th>
-                                        <td>Larry</td>
-                                        <td>the Bird</td>
-                                        <td>@twitter</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    <!-- /Done orders -->
+                    <br><br>
+
+                    <!-- Search result -->
+                        <?php
+                            if(isset($_POST['send'])){
+                                $search = $_POST['search'];
+                                // ERROR DE CONSULTA
+                                $productNameSearchQuery = mysqli_query($db, "SELECT * FROM producto WHERE nombre LIKE '%an%'");
+                                if($row = mysqli_fetch_array($db, $productNameSearchQuery)){
+                                    do{
+                                        $searchQuery = "SELECT * FROM comanda WHERE idproducto = '$row[id]'";
+                                        $search = mysqli_query($db, $searchQuery);
+                                        echo "<div class='row'>";
+                                            if($row = mysqli_fetch_array($search)){
+                                                echo "<table class='table table-dark'>";
+                                                    echo "<thead>";
+                                                        echo "<tr>";
+                                                            echo "<th scope='col'>Producto</th>";
+                                                            echo "<th scope='col'>Unidades</th>";
+                                                            echo "<th scope='col'>Entregado</th>";
+                                                        echo "</tr>";
+                                                    echo "</thead>";
+                                                    echo "<tbody>";
+                                                    do{
+                                                        $productQuery = "SELECT * FROM producto WHERE id = '$row[idproducto]'";
+                                                        $productName = mysqli_fetch_array(mysqli_query($db, $productQuery));
+                                                        echo "<tr>";
+                                                            echo "<td>".$productName["nombre"]."</td>";
+                                                            echo "<td>".$row["unidades"]."</td>";
+                                                            if($row['entregada'] == 1){
+                                                                echo "<td><a href='changeStatusUnnatended.php?id=".$row['id']."'><button type='button' class='btn btn-danger'>Marcar sin atender</button></a></td>";
+                                                            }elseif($row['entregada'] == 0){
+                                                                echo "<td><a href='changeStatusDone.php?id=".$row['id']."'><button type='button' class='btn btn-success'>Marcar atendida</button></a></td>";
+                                                            }
+                                                        echo "</tr>";
+                                                    }while($row = mysqli_fetch_array($search));
+                                                    echo "</tbody>";
+                                                echo "</table>";
+                                            }else{
+                                                echo "<table class='table table-dark'>";
+                                                    echo "<thead>";
+                                                        echo "<tr>";
+                                                            echo "<td>No se ha encontrado ningún registro</td>";
+                                                        echo "</tr>";
+                                                    echo "</thead>";
+                                                echo "</table>";
+                                            }
+                                        echo "</div>";
+                                    }while($row = mysqli_fetch_array($db, $productNameSearchQuery));
+                                }
+                            }
+                        ?>
+                    <!-- /Search result -->
+
+                    <div class="row">
+
+                        <!-- Unnatended orders -->
+                            <div class="col-6">
+                                <h2 style="text-align: center;">Pedidos sin atender</h2>
+
+                                <?php
+                                    if($row = mysqli_fetch_array($unnatendedOrders)){
+                                        echo "<table class='table table-dark'>";
+                                            echo "<thead>";
+                                                echo "<tr>";
+                                                    echo "<th scope='col'>Producto</th>";
+                                                    echo "<th scope='col'>Unidades</th>";
+                                                    echo "<th scope='col'>Entregado</th>";
+                                                echo "</tr>";
+                                            echo "</thead>";
+                                            echo "<tbody>";
+                                            do{
+                                                $productQuery = "SELECT * FROM producto WHERE id = '$row[idproducto]'";
+                                                $productName = mysqli_fetch_array(mysqli_query($db, $productQuery));
+                                                echo "<tr>";
+                                                    echo "<td>".$productName["nombre"]."</td>";
+                                                    echo "<td>".$row['unidades']."</td>";
+                                                    echo "<td><a href='changeStatusDone.php?id=".$row['id']."'><button type='button' class='btn btn-success'>Marcar atendida</button></a></td>";
+                                                echo "</tr>";
+                                            }while($row = mysqli_fetch_array($unnatendedOrders));
+                                            echo "</tbody>";
+                                        echo "</table>";
+                                    }else{
+                                        echo "<table class='table table-dark'>";
+                                            echo "<thead>";
+                                                echo "<tr>";
+                                                    echo "<th scope='col'></th>";
+                                                    echo "<th scope='col'>Producto</th>";
+                                                    echo "<th scope='col'>Unidades</th>";
+                                                    echo "<th scope='col'>Entregado</th>";
+                                                    echo "<th scope='col'></th>";
+                                                echo "</tr>";
+                                            echo "</thead>";
+                                            echo "<tbody>";
+                                                echo "<tr>";
+                                                    echo "<td>No se ha encontrado ningún registro</td>";
+                                                echo "</tr>";
+                                            echo "</tbody>";
+                                        echo "</table>";
+                                    }
+                                ?>
+
+                            </div>
+                        <!-- /Unnatended orders -->
+
+                        <!-- Done orders -->
+                            <div class="col-6">
+                                <h2 style="text-align: center;">Pedidos atendidos</h2>
+
+                                <?php
+                                    if($row = mysqli_fetch_array($doneOrders)){
+                                        echo "<table class='table table-dark'>";
+                                            echo "<thead>";
+                                                echo "<tr>";
+                                                    echo "<th scope='col'>Producto</th>";
+                                                    echo "<th scope='col'>Unidades</th>";
+                                                    echo "<th scope='col'>Entregado</th>";
+                                                echo "</tr>";
+                                            echo "</thead>";
+                                            echo "<tbody>";
+                                            do{
+                                                $productQuery = "SELECT * FROM producto WHERE id = $row[idproducto]";
+                                                $productName = mysqli_fetch_array(mysqli_query($db, $productQuery));
+                                                echo "<tr>";
+                                                    echo "<td>".$productName["nombre"]."</td>";
+                                                    echo "<td>".$row["unidades"]."</td>";
+                                                    echo "<td><a href='changeStatusUnnatended.php?id=".$row['id']."'><button type='button' class='btn btn-danger'>Marcar sin atender</button></a></td>";
+                                                echo "</tr>";
+                                            }while($row = mysqli_fetch_array($doneOrders));
+                                            echo "</tbody>";
+                                        echo "</table>";
+                                    }else{
+                                        echo "<table class='table table-dark'>";
+                                            echo "<thead>";
+                                                echo "<tr>";
+                                                    echo "<th scope='col'></th>";
+                                                    echo "<th scope='col'>Producto</th>";
+                                                    echo "<th scope='col'>Unidades</th>";
+                                                    echo "<th scope='col'>Entregado</th>";
+                                                    echo "<th scope='col'></th>";
+                                                echo "</tr>";
+                                            echo "</thead>";
+                                            echo "<tbody>";
+                                                echo "No se ha encontrado ningún registro";
+                                            echo "</tbody>";
+                                        echo "</table>";
+                                    }
+                                ?>
+
+                            </div>
+                        <!-- /Done orders -->
 
                 </div>
             <!-- /Main content -->
