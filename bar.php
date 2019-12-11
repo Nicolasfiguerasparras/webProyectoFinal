@@ -5,55 +5,52 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
-        <link rel="stylesheet" href="dateTables.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-design-lite/1.1.0/material.min.css">
+        <link rel="stylesheet" href="https://cdn.datatables.net/1.10.20/css/dataTables.material.min.css">
+
         <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.3.js"></script>
         <script type="text/javascript" src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
+
+        <script src='jquery-paginate.min.js'></script>
+        <script src='jquery-dataTables.min.js'></script>
+        <script type="text/javascript" src='https://cdn.datatables.net/1.10.20/js/dataTables.material.min.js'></script>
+        
         <script>
+           function filterGlobal () {
+                $('#MyTable1').DataTable().search(
+                    $('#global_filter1').val()
+                ).draw();
+
+                $('#MyTable2').DataTable().search(
+                    $('#global_filter2').val()
+                ).draw();
+            }
+
             $(document).ready(function() {
-                $('#MyTable').DataTable( {
-                    initComplete: function () {
-                        this.api().columns().every( function () {
-                            var column = this;
-                            var select = $('<select><option value=""></option></select>')
-                                .appendTo( $(column.footer()).empty() )
-                                .on( 'change', function () {
-                                    var val = $.fn.dataTable.util.escapeRegex(
-                                        $(this).val()
-                                    );
-                            //to select and search from grid
-                                    column
-                                        .search( val ? '^'+val+'$' : '', true, false )
-                                        .draw();
-                                } );
-            
-                            column.data().unique().sort().each( function ( d, j ) {
-                                select.append( '<option value="'+d+'">'+d+'</option>' )
-                            } );
-                        } );
-                    }
+                $('#MyTable1').DataTable({
+                    columnDefs: [
+                        {
+                            targets: [ 0, 1, 2 ],
+                            className: 'mdl-data-table__cell--non-numeric'
+                        }
+                    ]
                 } );
 
-                $('#MyTable2').DataTable( {
-                    initComplete: function () {
-                        this.api().columns().every( function () {
-                            var column = this;
-                            var select = $('<select><option value=""></option></select>')
-                                .appendTo( $(column.footer()).empty() )
-                                .on( 'change', function () {
-                                    var val = $.fn.dataTable.util.escapeRegex(
-                                        $(this).val()
-                                    );
-                            //to select and search from grid
-                                    column
-                                        .search( val ? '^'+val+'$' : '', true, false )
-                                        .draw();
-                                } );
+                $('#MyTable2').DataTable({
+                    columnDefs: [
+                        {
+                            targets: [ 0, 1, 2 ],
+                            className: 'mdl-data-table__cell--non-numeric'
+                        }
+                    ]
+                } );
             
-                            column.data().unique().sort().each( function ( d, j ) {
-                                select.append( '<option value="'+d+'">'+d+'</option>' )
-                            } );
-                        } );
-                    }
+                $('input.global_filter1').on( 'keyup click', function () {
+                    filterGlobal();
+                } );
+            
+                $('input.column_filter2').on( 'keyup click', function () {
+                    filterColumn( $(this).parents('tr').attr('data-column') );
                 } );
             } );
         </script>
@@ -65,10 +62,12 @@
         <title>Pedidos barra</title>
     </head>
     <style>
-        /* Sortable tables */
-        table.sortable thead {
-            font-weight: bold;
-            cursor: default;
+        #MyTable1_wrapper > div:nth-child(3) > div.mdl-cell.mdl-cell--4-col{
+            display:none;
+        }
+
+        #MyTable2_wrapper > div:nth-child(3) > div.mdl-cell.mdl-cell--4-col{
+            display:none;
         }
     </style>
     <body>
@@ -93,7 +92,10 @@
                             if($orderRow = mysqli_fetch_array($actualOrder)){
                                 do{
                                     $actualSize = sizeof($unnatendedOrders);
-                                    $unnatendedOrders[] = $orderRow['id'];
+                                    $drinks = mysqli_fetch_array(mysqli_query($db, "SELECT * FROM producto where id = $orderRow[id]"));
+                                    if($drinks['categoria'] == "Bebidas"){
+                                        $unnatendedOrders[] = $orderRow['id'];
+                                    }
                                 }while($orderRow = mysqli_fetch_array($actualOrder));
                             }
                         }while($invoicesRow = mysqli_fetch_array($invoices));
@@ -110,7 +112,10 @@
                             if($orderRow = mysqli_fetch_array($actualOrder)){
                                 do{
                                     $actualSize = sizeof($unnatendedOrders);
-                                    $doneOrders[] = $orderRow['id'];
+                                    $drinks = mysqli_fetch_array(mysqli_query($db, "SELECT * FROM producto where id = $orderRow[id]"));
+                                    if($drinks['categoria'] == "Bebidas"){
+                                        $doneOrders[] = $orderRow['id'];
+                                    }
                                 }while($orderRow = mysqli_fetch_array($actualOrder));
                             }
                         }while($invoicesRow = mysqli_fetch_array($invoices));
@@ -123,7 +128,7 @@
             ?>
         <!-- /Data extract -->
 
-        <div class="container">
+        <div class="container-fluid">
 
             <!-- Header -->
                 <div clas="row">
@@ -143,55 +148,50 @@
                         <div class="col-6">
                             <h2 style="text-align: center;">Pedidos sin atender</h2>
 
-                            <input type="text" id="myInput" class="form-control" aria-describedby="orderSearch" placeholder="Buscar comanda...">
-
-                            <br>
-
                             <?php
-                                echo "<table id='MyTable' class='display table table-dark sortable'>";
+                                echo "<table id='MyTable1' class='mdl-data-table'>";
+                                    echo "<thead>";
+                                        echo "<tr>";
+                                            echo "<th scope='col'>Producto</th>";
+                                            echo "<th scope='col'>Unidades</th>";
+                                            echo "<th scope='col'>Mesa</th>";
+                                            echo "<th scope='col'>Zona</th>";
+                                            echo "<th scope='col'>Entregado</th>";
+                                        echo "</tr>";
+                                    echo "</thead>";
+                                    if(count($unnatendedOrders) > 1){
+                                            
+                                        echo "<tbody>";
 
-                                        if(count($unnatendedOrders) > 1){
-                                            echo "<thead>";
+                                            for ($i=1; $i < count($unnatendedOrders); $i++) {
+                                                $unnatendedOrdersQuery = "SELECT * FROM comanda WHERE id = '".$unnatendedOrders[$i]."'";
+                                                $unnatendedOrdersFinal = mysqli_fetch_array(mysqli_query($db, $unnatendedOrdersQuery));
+
+                                                $productQuery = "SELECT * FROM producto WHERE id = '".$unnatendedOrdersFinal['idproducto']."'";
+                                                $productName = mysqli_fetch_array(mysqli_query($db, $productQuery));
+
+                                                $table = mysqli_fetch_array(mysqli_query($db, "SELECT * FROM mesa WHERE id = (SELECT idmesa FROM factura WHERE id = (SELECT idfactura FROM comanda WHERE id = '".$unnatendedOrdersFinal['id']."'))"));
+                                                $destination = mysqli_fetch_array(mysqli_query($db, "SELECT * FROM mesa WHERE id = (SELECT idmesa FROM factura WHERE id = (SELECT idfactura FROM comanda WHERE id = '".$unnatendedOrdersFinal['id']."'))"));
                                                 echo "<tr>";
-                                                    echo "<th scope='col'>Producto</th>";
-                                                    echo "<th scope='col'>Unidades</th>";
-                                                    echo "<th scope='col'>Mesa</th>";
-                                                    echo "<th scope='col'>Zona</th>";
-                                                    echo "<th scope='col'>Entregado</th>";
+                                                    echo "<td>".$productName["nombre"]."</td>";
+                                                    echo "<td>".$unnatendedOrdersFinal['unidades']."</td>";
+                                                    echo "<td>".$table['numero']."</td>";
+                                                    echo "<td>".$destination['zona']."</td>";
+                                                    echo "<td><a href='changeStatusDone.php?id=".$unnatendedOrdersFinal['id']."'><button type='button' class='btn btn-success'>Marcar atendida</button></a></td>";
                                                 echo "</tr>";
-                                            echo "</thead>";
-                                            echo "<tbody>";
-
-                                                for ($i=1; $i < count($unnatendedOrders); $i++) {
-                                                    $unnatendedOrdersQuery = "SELECT * FROM comanda WHERE id = '".$unnatendedOrders[$i]."'";
-                                                    $unnatendedOrdersFinal = mysqli_fetch_array(mysqli_query($db, $unnatendedOrdersQuery));
-
-                                                    $productQuery = "SELECT * FROM producto WHERE id = '".$unnatendedOrdersFinal['idproducto']."'";
-                                                    $productName = mysqli_fetch_array(mysqli_query($db, $productQuery));
-
-                                                    $table = mysqli_fetch_array(mysqli_query($db, "SELECT * FROM mesa WHERE id = (SELECT idmesa FROM factura WHERE id = (SELECT idfactura FROM comanda WHERE id = '".$unnatendedOrdersFinal['id']."'))"));
-                                                    $destination = mysqli_fetch_array(mysqli_query($db, "SELECT * FROM mesa WHERE id = (SELECT idmesa FROM factura WHERE id = (SELECT idfactura FROM comanda WHERE id = '".$unnatendedOrdersFinal['id']."'))"));
-                                                    echo "<tr>";
-                                                        echo "<td>".$productName["nombre"]."</td>";
-                                                        echo "<td>".$unnatendedOrdersFinal['unidades']."</td>";
-                                                        echo "<td>".$table['numero']."</td>";
-                                                        echo "<td>".$destination['zona']."</td>";
-                                                        echo "<td><a href='changeStatusDone.php?id=".$unnatendedOrdersFinal['id']."'><button type='button' class='btn btn-success'>Marcar atendida</button></a></td>";
-                                                    echo "</tr>";
-                                                }
-                                            echo "</tbody>";
-                                            echo "<tfoot>";
-                                                echo "<tr>";
-                                                    echo "<th>Name</th>";
-                                                echo "</tr>";
-                                            echo "</tfoot>";
-                                        }else{
-                                            echo "<thead>";
-                                                echo "<tr>";
-                                                    echo "<td style='text-align:center'>No se ha obtenido ningún resultado</td>";
-                                                echo "</tr>";
-                                            echo "</thead>";
-                                        }
+                                            }
+                                        echo "</tbody>";
+                                    }else{
+                                        echo "<tbody>";
+                                            echo "<tr>";
+                                                echo "<td style='text-align:center'>No se ha obtenido ningún resultado</td>";
+                                                echo "<td></td>";
+                                                echo "<td></td>";
+                                                echo "<td></td>";
+                                                echo "<td></td>";
+                                            echo "</tr>";
+                                        echo "</tbody>";
+                                    }
                                 echo "</table>";
                             ?>
 
@@ -202,49 +202,49 @@
                         <div class="col-6">
                             <h2 style="text-align: center;">Pedidos atendidos</h2>
 
-                            <input type="text" id="myInput2" class="form-control" aria-describedby="orderSearch" placeholder="Buscar comanda...">
-
-                            <br>
-
                             <?php
-                                echo "<table id='MyTable2' class='table table-dark sortable'>";
+                                echo "<table id='MyTable2' class='mdl-data-table'>";
+                                    echo "<thead>";
+                                        echo "<tr>";
+                                            echo "<th scope='col'>Producto</th>";
+                                            echo "<th scope='col'>Unidades</th>";
+                                            echo "<th scope='col'>Mesa</th>";
+                                            echo "<th scope='col'>Zona</th>";
+                                            echo "<th scope='col'>Entregado</th>";
+                                        echo "</tr>";
+                                    echo "</thead>";
+                                    if(count($doneOrders) > 1){
+                                        
+                                        echo "<tbody>";
+                                        for ($i=1; $i < count($doneOrders); $i++) {
+                                            $doneOrdersQuery = "SELECT * FROM comanda WHERE id = '".$doneOrders[$i]."'";
+                                            $doneOrdersFinal = mysqli_fetch_array(mysqli_query($db, $doneOrdersQuery));
 
-                                        if(count($doneOrders) > 1){
-                                            echo "<thead>";
-                                                echo "<tr>";
-                                                    echo "<th scope='col'>Producto</th>";
-                                                    echo "<th scope='col'>Unidades</th>";
-                                                    echo "<th scope='col'>Mesa</th>";
-                                                    echo "<th scope='col'>Zona</th>";
-                                                    echo "<th scope='col'>Entregado</th>";
-                                                echo "</tr>";
-                                            echo "</thead>";
-                                            echo "<tbody>";
-                                            for ($i=1; $i < count($doneOrders); $i++) {
-                                                $doneOrdersQuery = "SELECT * FROM comanda WHERE id = '".$doneOrders[$i]."'";
-                                                $doneOrdersFinal = mysqli_fetch_array(mysqli_query($db, $doneOrdersQuery));
+                                            $productQuery = "SELECT * FROM producto WHERE id = '".$doneOrdersFinal['idproducto']."'";
+                                            $productName = mysqli_fetch_array(mysqli_query($db, $productQuery));
 
-                                                $productQuery = "SELECT * FROM producto WHERE id = '".$doneOrdersFinal['idproducto']."'";
-                                                $productName = mysqli_fetch_array(mysqli_query($db, $productQuery));
-
-                                                $table = mysqli_fetch_array(mysqli_query($db, "SELECT * FROM mesa WHERE id = (SELECT idmesa FROM factura WHERE id = (SELECT idfactura FROM comanda WHERE id = '".$doneOrdersFinal['id']."'))"));
-                                                $destination = mysqli_fetch_array(mysqli_query($db, "SELECT * FROM mesa WHERE id = (SELECT idmesa FROM factura WHERE id = (SELECT idfactura FROM comanda WHERE id = '".$doneOrdersFinal['id']."'))"));
-                                                echo "<tr>";
-                                                    echo "<td>".$productName["nombre"]."</td>";
-                                                    echo "<td>".$doneOrdersFinal['unidades']."</td>";
-                                                    echo "<td>".$table['numero']."</td>";
-                                                    echo "<td>".$destination['zona']."</td>";
-                                                    echo "<td><a href='changeStatusUnnatended.php?id=".$doneOrdersFinal['id']."'><button type='button' class='btn btn-danger'>Marcar no atendida</button></a></td>";
-                                                echo "</tr>";
-                                            }
-                                            echo "</tbody>";
-                                        }else{
-                                            echo "<thead>";
-                                                echo "<tr>";
-                                                    echo "<td style='text-align:center'>No se ha obtenido ningún resultado</td>";
-                                                echo "</tr>";
-                                            echo "</thead>";
+                                            $table = mysqli_fetch_array(mysqli_query($db, "SELECT * FROM mesa WHERE id = (SELECT idmesa FROM factura WHERE id = (SELECT idfactura FROM comanda WHERE id = '".$doneOrdersFinal['id']."'))"));
+                                            $destination = mysqli_fetch_array(mysqli_query($db, "SELECT * FROM mesa WHERE id = (SELECT idmesa FROM factura WHERE id = (SELECT idfactura FROM comanda WHERE id = '".$doneOrdersFinal['id']."'))"));
+                                            echo "<tr>";
+                                                echo "<td>".$productName["nombre"]."</td>";
+                                                echo "<td>".$doneOrdersFinal['unidades']."</td>";
+                                                echo "<td>".$table['numero']."</td>";
+                                                echo "<td>".$destination['zona']."</td>";
+                                                echo "<td><a href='changeStatusUnnatended.php?id=".$doneOrdersFinal['id']."'><button type='button' class='btn btn-danger'>Marcar no atendida</button></a></td>";
+                                            echo "</tr>";
                                         }
+                                        echo "</tbody>";
+                                    }else{
+                                        echo "<tbody>";
+                                            echo "<tr>";
+                                                echo "<td style='text-align:center'>No se ha obtenido ningún resultado</td>";
+                                                echo "<td></td>";
+                                                echo "<td></td>";
+                                                echo "<td></td>";
+                                                echo "<td></td>";
+                                            echo "</tr>";
+                                        echo "</tbody>";
+                                    }
                                 echo "</table>";
                             ?>
 
