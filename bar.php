@@ -145,7 +145,7 @@
                 <div class="row">
 
                     <!-- Unnatended orders -->
-                        <div class="col-6">
+                        <div class="col-12 col-md-6">
                             <h2 style="text-align: center;">Pedidos sin atender</h2>
 
                             <?php
@@ -199,7 +199,7 @@
                     <!-- /Unnatended orders -->
 
                     <!-- Done orders -->
-                        <div class="col-6">
+                        <div class="col-12 col-md-6">
                             <h2 style="text-align: center;">Pedidos atendidos</h2>
 
                             <?php

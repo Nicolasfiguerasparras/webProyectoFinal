@@ -145,7 +145,7 @@
                 <div class="row">
 
                     <!-- Unnatended orders -->
-                        <div class="col-6">
+                        <div class="col-12 col-md-6 div1">
                             <h2 style="text-align: center;">Pedidos sin atender</h2>
 
                             <?php
@@ -160,7 +160,7 @@
                                         echo "</tr>";
                                     echo "</thead>";
                                     if(count($unnatendedOrders) > 1){
-                                            
+
                                         echo "<tbody>";
 
                                             for ($i=1; $i < count($unnatendedOrders); $i++) {
@@ -199,7 +199,7 @@
                     <!-- /Unnatended orders -->
 
                     <!-- Done orders -->
-                        <div class="col-6">
+                        <div class="col-12 col-md-6 div2">
                             <h2 style="text-align: center;">Pedidos atendidos</h2>
 
                             <?php
