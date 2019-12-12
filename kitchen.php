@@ -69,6 +69,14 @@
         #MyTable2_wrapper > div:nth-child(3) > div.mdl-cell.mdl-cell--4-col{
             display:none;
         }
+
+        #MyTable1_wrapper{
+            display:block flow;
+        }
+
+        #MyTable2_wrapper{
+            display:block flow;
+        }
     </style>
     <body>
 
@@ -184,7 +192,7 @@
                                     }else{
                                         echo "<tbody>";
                                             echo "<tr>";
-                                                echo "<td style='text-align:center'>No se ha obtenido ningún resultado</td>";
+                                                echo "<td style='text-align:center'>Sin resultados</td>";
                                                 echo "<td></td>";
                                                 echo "<td></td>";
                                                 echo "<td></td>";
@@ -238,7 +246,7 @@
                                     }else{
                                         echo "<tbody>";
                                             echo "<tr>";
-                                                echo "<td style='text-align:center'>No se ha obtenido ningún resultado</td>";
+                                                echo "<td style='text-align:center'>Sin resultados</td>";
                                                 echo "<td></td>";
                                                 echo "<td></td>";
                                                 echo "<td></td>";
