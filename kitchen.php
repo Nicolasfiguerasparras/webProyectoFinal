@@ -128,7 +128,7 @@
             ?>
         <!-- /Data extract -->
 
-        <div class="container-fluid">
+        <div class="container">
 
             <!-- Header -->
                 <div clas="row">
@@ -145,7 +145,7 @@
                 <div class="row">
 
                     <!-- Unnatended orders -->
-                        <div class="col-12 col-md-6 div1">
+                        <div class="col-12 col-xl-6 div1">
                             <h2 style="text-align: center;">Pedidos sin atender</h2>
 
                             <?php
@@ -199,7 +199,7 @@
                     <!-- /Unnatended orders -->
 
                     <!-- Done orders -->
-                        <div class="col-12 col-md-6 div2">
+                        <div class="col-12 col-xl-6 div2">
                             <h2 style="text-align: center;">Pedidos atendidos</h2>
 
                             <?php
@@ -216,23 +216,24 @@
                                     if(count($doneOrders) > 1){
                                         
                                         echo "<tbody>";
-                                        for ($i=1; $i < count($doneOrders); $i++) {
-                                            $doneOrdersQuery = "SELECT * FROM comanda WHERE id = '".$doneOrders[$i]."'";
-                                            $doneOrdersFinal = mysqli_fetch_array(mysqli_query($db, $doneOrdersQuery));
 
-                                            $productQuery = "SELECT * FROM producto WHERE id = '".$doneOrdersFinal['idproducto']."'";
-                                            $productName = mysqli_fetch_array(mysqli_query($db, $productQuery));
+                                            for ($i=1; $i < count($doneOrders); $i++) {
+                                                $doneOrdersQuery = "SELECT * FROM comanda WHERE id = '".$doneOrders[$i]."'";
+                                                $doneOrdersFinal = mysqli_fetch_array(mysqli_query($db, $doneOrdersQuery));
 
-                                            $table = mysqli_fetch_array(mysqli_query($db, "SELECT * FROM mesa WHERE id = (SELECT idmesa FROM factura WHERE id = (SELECT idfactura FROM comanda WHERE id = '".$doneOrdersFinal['id']."'))"));
-                                            $destination = mysqli_fetch_array(mysqli_query($db, "SELECT * FROM mesa WHERE id = (SELECT idmesa FROM factura WHERE id = (SELECT idfactura FROM comanda WHERE id = '".$doneOrdersFinal['id']."'))"));
-                                            echo "<tr>";
-                                                echo "<td>".$productName["nombre"]."</td>";
-                                                echo "<td>".$doneOrdersFinal['unidades']."</td>";
-                                                echo "<td>".$table['numero']."</td>";
-                                                echo "<td>".$destination['zona']."</td>";
-                                                echo "<td><a href='changeStatusUnnatended.php?id=".$doneOrdersFinal['id']."'><button type='button' class='btn btn-danger'>Marcar no atendida</button></a></td>";
-                                            echo "</tr>";
-                                        }
+                                                $productQuery = "SELECT * FROM producto WHERE id = '".$doneOrdersFinal['idproducto']."'";
+                                                $productName = mysqli_fetch_array(mysqli_query($db, $productQuery));
+
+                                                $table = mysqli_fetch_array(mysqli_query($db, "SELECT * FROM mesa WHERE id = (SELECT idmesa FROM factura WHERE id = (SELECT idfactura FROM comanda WHERE id = '".$doneOrdersFinal['id']."'))"));
+                                                $destination = mysqli_fetch_array(mysqli_query($db, "SELECT * FROM mesa WHERE id = (SELECT idmesa FROM factura WHERE id = (SELECT idfactura FROM comanda WHERE id = '".$doneOrdersFinal['id']."'))"));
+                                                echo "<tr>";
+                                                    echo "<td>".$productName["nombre"]."</td>";
+                                                    echo "<td>".$doneOrdersFinal['unidades']."</td>";
+                                                    echo "<td>".$table['numero']."</td>";
+                                                    echo "<td>".$destination['zona']."</td>";
+                                                    echo "<td><a href='changeStatusUnnatended.php?id=".$doneOrdersFinal['id']."'><button type='button' class='btn btn-danger'>Marcar no atendida</button></a></td>";
+                                                echo "</tr>";
+                                            }
                                         echo "</tbody>";
                                     }else{
                                         echo "<tbody>";
