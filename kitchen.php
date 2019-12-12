@@ -93,7 +93,7 @@
                 // ---------- Unnatended orders ---------- //
                     $unnatendedOrders[] = null;
 
-                    $invoices = mysqli_query($db, "SELECT * FROM factura ORDER BY horainicio DESC");
+                    $invoices = mysqli_query($db, "SELECT * FROM factura WHERE horacierre = '' ORDER BY horainicio DESC");
                     if($invoicesRow = mysqli_fetch_array($invoices)){
                         do{
                             $actualOrder = mysqli_query($db, "SELECT * FROM comanda WHERE idfactura = $invoicesRow[id] AND entregada = 0");
@@ -113,7 +113,7 @@
                 // ---------- Done orders ---------- //
                     $doneOrders[] = null;
 
-                    $invoices = mysqli_query($db, "SELECT * FROM factura ORDER BY horainicio DESC");
+                    $invoices = mysqli_query($db, "SELECT * FROM factura WHERE horacierre = '' ORDER BY horainicio DESC");
                     if($invoicesRow = mysqli_fetch_array($invoices)){
                         do{
                             $actualOrder = mysqli_query($db, "SELECT * FROM comanda WHERE idfactura = $invoicesRow[id] AND entregada = 1");
